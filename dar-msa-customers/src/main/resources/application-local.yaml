@@ -1,0 +1,8 @@
+spring:
+  output:
+    ansi:
+      enabled: always
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 123
