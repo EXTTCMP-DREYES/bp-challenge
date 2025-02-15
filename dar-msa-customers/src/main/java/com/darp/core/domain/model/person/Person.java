@@ -5,15 +5,13 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @Getter
 @Setter
-@Accessors(fluent = true)
 @ToString
 public class Person {
   @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")

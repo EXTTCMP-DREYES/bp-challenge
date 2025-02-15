@@ -1,4 +1,4 @@
-package com.darp.core.infrastructure.entity;
+package com.darp.core.infrastructure.output.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
