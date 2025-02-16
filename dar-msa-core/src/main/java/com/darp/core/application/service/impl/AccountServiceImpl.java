@@ -6,7 +6,6 @@ import com.darp.core.domain.model.AccountStatus;
 import com.darp.core.domain.repository.AccountRepository;
 import com.darp.core.infrastructure.output.api.CustomersApi;
 import jakarta.validation.constraints.NotBlank;
-import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
@@ -32,8 +31,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public Mono<Account> save(@NonNull Account account) {
-    var storedAccount =
-        account.toBuilder().status(AccountStatus.ACTIVE).balance(BigDecimal.ZERO).build();
+    var storedAccount = account.toBuilder().status(AccountStatus.ACTIVE).build();
 
     return customersApi
         .findById(account.getCustomerId())
