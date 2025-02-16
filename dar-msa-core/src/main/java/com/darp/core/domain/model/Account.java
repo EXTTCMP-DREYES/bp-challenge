@@ -2,7 +2,6 @@ package com.darp.core.domain.model;
 
 import java.math.BigDecimal;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -10,7 +9,7 @@ import org.springframework.data.annotation.Id;
 @Getter
 @Setter
 public class Account {
-  @Id private String id;
+  private String id;
 
   private String number;
 
