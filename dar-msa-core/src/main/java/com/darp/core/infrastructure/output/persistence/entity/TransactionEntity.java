@@ -1,9 +1,9 @@
-package com.darp.core.infrastructure.output.entity;
+package com.darp.core.infrastructure.output.persistence.entity;
 
+import com.darp.core.domain.model.TransactionType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
-
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;

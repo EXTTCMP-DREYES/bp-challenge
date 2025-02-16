@@ -1,11 +1,12 @@
-package com.darp.core.infrastructure.output.entity;
+package com.darp.core.infrastructure.output.persistence.entity;
 
+import com.darp.core.domain.model.AccountStatus;
+import com.darp.core.domain.model.AccountType;
+import java.math.BigDecimal;
+import java.util.UUID;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
-
-import java.math.BigDecimal;
-import java.util.UUID;
 
 @Table(schema = "public", value = "accounts")
 @AllArgsConstructor
@@ -24,5 +25,5 @@ public class AccountEntity {
 
   private AccountStatus status;
 
-  @NonNull private UUID clientId;
+  @NonNull private UUID customerId;
 }

@@ -9,7 +9,6 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 @EnableR2dbcRepositories
 @Slf4j
 public class CoreApplication {
-
   public static void main(String[] args) {
     SpringApplication.run(CoreApplication.class, args);
   }

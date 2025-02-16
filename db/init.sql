@@ -20,7 +20,7 @@ CREATE TABLE public.accounts (
     type VARCHAR, -- Puede cambiar a un tipo específico si es necesario
     balance DECIMAL NOT NULL,
     status VARCHAR, -- Puede cambiar a un tipo específico si es necesario
-    client_id UUID NOT NULL
+    customer_id UUID NOT NULL
 );
 
 CREATE TABLE public.transactions (
