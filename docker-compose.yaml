@@ -1,8 +1,6 @@
 services:
   customers:
-    build:
-      context: customers
-      dockerfile: ./dar-msa-customers/Dockerfile
+    build: ./dar-msa-customers
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -15,9 +13,7 @@ services:
       - "8081:80"
 
   core:
-    build:
-      context: core
-      dockerfile: ./dar-msa-core/Dockerfile
+    build: ./dar-msa-core
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -30,7 +26,6 @@ services:
     ports:
       - "8080:80"
 
-  # Todo: add init script
   db:
     image: postgres:14-alpine3.20
     environment:
