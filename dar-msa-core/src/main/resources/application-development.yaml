@@ -12,4 +12,4 @@ spring:
 
 api:
   customers:
-    base-url: ${CUSTOMERS_API_BASE_URL}/customers
+    base-url: ${CUSTOMERS_API_BASE_URL}/api/customers

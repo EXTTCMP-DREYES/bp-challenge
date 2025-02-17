@@ -1,1 +1,5 @@
-spring.application.name: core
+spring:
+  application:
+    name: customers
+  webflux:
+    base-path: /api
