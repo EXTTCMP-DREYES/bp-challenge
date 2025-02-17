@@ -2,7 +2,6 @@ package com.darp.core.infrastructure.input.mapper;
 
 import com.darp.core.domain.model.Transaction;
 import com.darp.core.domain.model.TransactionDetails;
-import com.darp.core.domain.model.TransactionType;
 import com.darp.core.infrastructure.input.dto.TransactionDetailsDto;
 import com.darp.core.infrastructure.output.api.dto.CreateTransactionDto;
 import com.darp.core.infrastructure.output.api.dto.TransactionDto;
@@ -33,14 +32,6 @@ public interface TransactionDtoMapper {
   @Mapping(target = "amount", source = "amount")
   @Mapping(target = "finalBalance", source = "balance")
   TransactionDetailsDto toDetailsDto(TransactionDetails transactionDetails);
-
-  default BigDecimal getRealAmount(TransactionDetails transaction) {
-    if (transaction.getType() == TransactionType.WITHDRAWAL) {
-      return transaction.getAmount().multiply(BigDecimal.valueOf(-1));
-    }
-
-    return transaction.getAmount();
-  }
 
   default BigDecimal calculateInitialBalance(TransactionDetails transaction) {
     return transaction.getBalance().subtract(transaction.getAmount());

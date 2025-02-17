@@ -23,7 +23,7 @@ public class TransactionController {
 
   @PostMapping
   public Mono<TransactionDto> create(@Validated @RequestBody CreateTransactionDto transactionDto) {
-    log.info("|--> Deposit transaction started: {}", transactionDto);
+    log.info("|--> POST /transactions Started.");
 
     var transaction = transactionMapper.toDomain(transactionDto);
     var response =
@@ -31,11 +31,18 @@ public class TransactionController {
             ? transactionService.deposit(transaction)
             : transactionService.withdrawal(transaction);
 
-    return response.map(transactionMapper::toDto);
+    return response
+        .map(transactionMapper::toDto)
+        .doOnSuccess(dto -> log.info("|--> POST /transactions Ended successfully"));
   }
 
   @GetMapping("/report")
   public Flux<TransactionDetailsDto> generateReport(@Validated TransactionFilterParams params) {
-    return transactionService.getReport(params).map(transactionMapper::toDetailsDto);
+    log.info("|--> GET /transactions/report Started.");
+
+    return transactionService
+        .getReport(params)
+        .map(transactionMapper::toDetailsDto)
+        .doOnComplete(() -> log.info("|--> GET /transactions/report Ended successfully"));
   }
 }

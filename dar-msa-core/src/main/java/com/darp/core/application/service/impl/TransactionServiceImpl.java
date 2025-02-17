@@ -29,6 +29,8 @@ public class TransactionServiceImpl implements TransactionService {
 
   @Override
   public Mono<Transaction> deposit(Transaction transaction) {
+    log.info("|--> Deposit started for account: [{}]", transaction.getAccountId());
+
     return accountRepository
         .findById(transaction.getAccountId())
         .switchIfEmpty(Mono.error(new NotFoundException("Account not found")))
@@ -48,11 +50,17 @@ public class TransactionServiceImpl implements TransactionService {
               return accountRepository
                   .save(account)
                   .then(transactionRepository.save(savedTransaction));
-            });
+            })
+        .doOnSuccess(
+            savedTransaction ->
+                log.info("|--> Deposit saved successfully: [{}]", savedTransaction.getId()))
+        .doOnError(error -> log.error("|--> Error saving deposit: [{}]", error.getMessage()));
   }
 
   @Override
   public Mono<Transaction> withdrawal(Transaction transaction) {
+    log.info("|--> Withdrawal started for account: [{}]", transaction.getAccountId());
+
     return accountRepository
         .findById(transaction.getAccountId())
         .switchIfEmpty(Mono.error(new NotFoundException("Account not found")))
@@ -78,24 +86,37 @@ public class TransactionServiceImpl implements TransactionService {
               return accountRepository
                   .save(account)
                   .then(transactionRepository.save(savedTransaction));
-            });
+            })
+        .doOnSuccess(
+            savedTransaction ->
+                log.info("|--> Withdrawal saved successfully: [{}]", savedTransaction.getId()))
+        .doOnError(error -> log.error("|--> Error saving withdrawal: [{}]", error.getMessage()));
   }
 
   @Override
   public Flux<TransactionDetails> getReport(TransactionFilterParams filterParams) {
+    log.info("|--> Generating report for customer: [{}]", filterParams.customerId());
+
     var dateFrom = filterParams.dateRange().get(0);
     var dateTo = filterParams.dateRange().get(1);
 
     if (dateFrom.isAfter(dateTo)) {
+      log.error("|--> Invalid date range: {}", filterParams.dateRange());
       return Flux.error(new TransactionsReportException("Invalid date range"));
     }
 
     return customersApi
         .findById(filterParams.customerId())
+        .doOnSuccess(
+            customer ->
+                log.info("|--> Customer found: [{}]. Generating report...", customer.getId()))
+        .doOnError(error -> log.error("|--> Error finding customer: [{}]", error.getMessage()))
         .flatMapMany(
             customer ->
                 transactionRepository
                     .findByCustomerIdAndExecutedAtBetween(customer.getId(), dateFrom, dateTo)
-                    .map(details -> details.toBuilder().customer(customer).build()));
+                    .map(details -> details.toBuilder().customer(customer).build()))
+        .doOnComplete(() -> log.info("|--> Report generated successfully"))
+        .doOnError(error -> log.error("|--> Error generating report: [{}]", error.getMessage()));
   }
 }
