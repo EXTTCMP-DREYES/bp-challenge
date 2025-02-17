@@ -1,16 +1,16 @@
 package com.darp.core.infrastructure.input;
 
+import com.darp.core.application.dto.TransactionFilterParams;
 import com.darp.core.application.input.port.TransactionService;
+import com.darp.core.infrastructure.input.dto.TransactionDetailsDto;
 import com.darp.core.infrastructure.input.mapper.TransactionDtoMapper;
 import com.darp.core.infrastructure.output.api.dto.CreateTransactionDto;
 import com.darp.core.infrastructure.output.api.dto.TransactionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -32,5 +32,10 @@ public class TransactionController {
             : transactionService.withdrawal(transaction);
 
     return response.map(transactionMapper::toDto);
+  }
+
+  @GetMapping("/report")
+  public Flux<TransactionDetailsDto> generateReport(@Validated TransactionFilterParams params) {
+    return transactionService.getReport(params).map(transactionMapper::toDetailsDto);
   }
 }

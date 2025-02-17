@@ -1,17 +1,22 @@
 package com.darp.core.application.service.impl;
 
+import com.darp.core.application.dto.TransactionFilterParams;
 import com.darp.core.application.input.port.TransactionService;
 import com.darp.core.domain.exception.InsufficientFoundsException;
 import com.darp.core.domain.exception.NotFoundException;
+import com.darp.core.domain.exception.TransactionsReportException;
 import com.darp.core.domain.model.Transaction;
+import com.darp.core.domain.model.TransactionDetails;
 import com.darp.core.domain.model.TransactionType;
 import com.darp.core.domain.repository.AccountRepository;
 import com.darp.core.domain.repository.TransactionRepository;
+import com.darp.core.infrastructure.output.api.CustomersApi;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -20,6 +25,7 @@ import reactor.core.publisher.Mono;
 public class TransactionServiceImpl implements TransactionService {
   private final TransactionRepository transactionRepository;
   private final AccountRepository accountRepository;
+  private final CustomersApi customersApi;
 
   @Override
   public Mono<Transaction> deposit(Transaction transaction) {
@@ -73,5 +79,23 @@ public class TransactionServiceImpl implements TransactionService {
                   .save(account)
                   .then(transactionRepository.save(savedTransaction));
             });
+  }
+
+  @Override
+  public Flux<TransactionDetails> getReport(TransactionFilterParams filterParams) {
+    var dateFrom = filterParams.dateRange().get(0);
+    var dateTo = filterParams.dateRange().get(1);
+
+    if (dateFrom.isAfter(dateTo)) {
+      return Flux.error(new TransactionsReportException("Invalid date range"));
+    }
+
+    return customersApi
+        .findById(filterParams.customerId())
+        .flatMapMany(
+            customer ->
+                transactionRepository
+                    .findByCustomerIdAndExecutedAtBetween(customer.getId(), dateFrom, dateTo)
+                    .map(details -> details.toBuilder().customer(customer).build()));
   }
 }
