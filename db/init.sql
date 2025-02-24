@@ -17,18 +17,24 @@ CREATE TABLE public.customers (
 CREATE TABLE public.accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     number VARCHAR NOT NULL,
-    type VARCHAR, -- Puede cambiar a un tipo específico si es necesario
+    type VARCHAR,
     balance DECIMAL NOT NULL,
-    status VARCHAR, -- Puede cambiar a un tipo específico si es necesario
+    status VARCHAR,
     customer_id UUID NOT NULL
 );
 
 CREATE TABLE public.transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     executed_at TIMESTAMP NOT NULL,
-    type VARCHAR, -- Puede cambiar a un tipo específico si es necesario
+    type VARCHAR,
     amount DECIMAL NOT NULL,
     balance DECIMAL NOT NULL,
     account_id UUID NOT NULL,
     FOREIGN KEY (account_id) REFERENCES public.accounts(id) ON DELETE CASCADE
+);
+
+CREATE TABLE public.reports_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    customer_id UUID NOT NULL,
+    generated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

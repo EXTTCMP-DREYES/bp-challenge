@@ -10,5 +10,12 @@ import reactor.core.publisher.Mono;
 public interface AccountRepository {
   Mono<Account> findById(@NonNull @NotBlank String id);
 
+  Mono<Account> findByCustomerAndNumber(
+      @NonNull @NotBlank String customerId, @NonNull @NotBlank String number);
+
   Mono<Account> save(@NonNull Account account);
+
+  Mono<Account> update(@NonNull Account account);
+
+  Mono<Void> delete(@NonNull @NotBlank String id);
 }

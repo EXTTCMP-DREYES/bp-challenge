@@ -3,7 +3,7 @@ package com.darp.customers.application.service.impl;
 import com.darp.customers.application.input.port.CustomerService;
 import com.darp.customers.domain.exception.NotFoundException;
 import com.darp.customers.domain.model.customer.Customer;
-import com.darp.customers.domain.model.customer.Status;
+import com.darp.customers.domain.model.customer.CustomerStatus;
 import com.darp.customers.domain.repository.CustomerRepository;
 import com.darp.customers.infrastructure.config.IdGenerator;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.toBuilder() //
             .id(id)
             .password(encryptedPassword)
-            .status(Status.ACTIVE)
+            .status(CustomerStatus.ACTIVE)
             .build();
 
     return customerRepository

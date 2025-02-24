@@ -6,6 +6,7 @@ import com.darp.core.domain.events.ReportGenerationEvent;
 import com.darp.core.domain.exception.InsufficientFoundsException;
 import com.darp.core.domain.exception.NotFoundException;
 import com.darp.core.domain.exception.TransactionsReportException;
+import com.darp.core.domain.model.Customer;
 import com.darp.core.domain.model.Transaction;
 import com.darp.core.domain.model.TransactionDetails;
 import com.darp.core.domain.model.TransactionType;
@@ -13,21 +14,24 @@ import com.darp.core.domain.repository.AccountRepository;
 import com.darp.core.domain.repository.TransactionRepository;
 import com.darp.core.infrastructure.output.api.CustomersApi;
 import com.darp.core.infrastructure.output.messaging.MessageProducer;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
+@Validated
 @RequiredArgsConstructor
 @Slf4j
 public class TransactionServiceImpl implements TransactionService {
-  private static final int EXPECTED_DATE_RANGE_SIZE = 2;
-
   private final TransactionRepository transactionRepository;
   private final AccountRepository accountRepository;
   private final MessageProducer<ReportGenerationEvent> messageProducer;
@@ -103,11 +107,6 @@ public class TransactionServiceImpl implements TransactionService {
   public Flux<TransactionDetails> getReport(TransactionFilterParams filterParams) {
     log.info("|--> Generating report for customer: [{}]", filterParams.customerId());
 
-    if (filterParams.dateRange().size() != EXPECTED_DATE_RANGE_SIZE) {
-      log.error("|--> Invalid date range: {}", filterParams.dateRange());
-      return Flux.error(new TransactionsReportException("Invalid date range"));
-    }
-
     var dateFrom = filterParams.dateRange().get(0);
     var dateTo = filterParams.dateRange().get(1);
 
@@ -116,31 +115,36 @@ public class TransactionServiceImpl implements TransactionService {
       return Flux.error(new TransactionsReportException("Invalid date range"));
     }
 
-    return customersApi
-        .findById(filterParams.customerId())
-        .doOnSuccess(
-            customer ->
-                log.info("|--> Customer found: [{}]. Generating report...", customer.getId()))
-        .doOnError(error -> log.error("|--> Error finding customer: [{}]", error.getMessage()))
+    return findCustomerById(filterParams.customerId())
+        .flatMap(this::notifyReportGeneration)
         .flatMapMany(
             customer ->
                 transactionRepository
                     .findByCustomerIdAndExecutedAtBetween(customer.getId(), dateFrom, dateTo)
                     .map(details -> details.toBuilder().customer(customer).build()))
-        // Todo: check this
-        .doOnComplete(
-            () -> {
-              log.info("|--> Report generated successfully");
-              messageProducer.send(buildReportGenerationEvent(filterParams.customerId()));
-            })
+        .doOnComplete(() -> log.info("|--> Report generated successfully"))
         .doOnError(error -> log.error("|--> Error generating report: [{}]", error.getMessage()));
   }
 
-  private ReportGenerationEvent buildReportGenerationEvent(String customerId) {
-    return ReportGenerationEvent.builder()
-        .correlationId(UUID.randomUUID().toString())
-        .customerId(customerId)
-        .generatedAt(LocalDate.now())
-        .build();
+  private Mono<Customer> findCustomerById(@NotNull @NotBlank String customerId) {
+    return customersApi
+        .findById(customerId)
+        .doOnSuccess(
+            customer ->
+                log.info("|--> Customer found: [{}]. Generating report...", customer.getId()))
+        .doOnError(error -> log.error("|--> Error finding customer: [{}]", error.getMessage()));
+  }
+
+  private Mono<Customer> notifyReportGeneration(@NotNull Customer customer) {
+    log.info("|--> Sending report generation event...");
+
+    var event =
+        ReportGenerationEvent.builder()
+            .correlationId(UUID.randomUUID().toString())
+            .customerId(customer.getId())
+            .generatedAt(LocalDateTime.now())
+            .build();
+
+    return messageProducer.send(event).thenReturn(customer);
   }
 }

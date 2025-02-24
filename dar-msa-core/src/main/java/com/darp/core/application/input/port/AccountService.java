@@ -11,4 +11,8 @@ public interface AccountService {
   Mono<Account> findById(@NonNull @NotBlank String id);
 
   Mono<Account> save(@NonNull Account account);
+
+  Mono<Account> update(@NonNull Account account);
+
+  Mono<Void> delete(@NonNull @NotBlank String id);
 }

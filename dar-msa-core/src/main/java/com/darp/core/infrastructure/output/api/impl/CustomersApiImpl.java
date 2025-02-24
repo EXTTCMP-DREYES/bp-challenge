@@ -33,6 +33,7 @@ public class CustomersApiImpl implements CustomersApi {
               return Mono.error(new NotFoundException("Customer not found with id: " + id));
             })
         .bodyToMono(CustomerDto.class)
-        .map(customerMapper::toDomain);
+        .map(customerMapper::toDomain)
+        .doOnSuccess(customer -> log.info("|--> Customer found: {}", customer.getFullName()));
   }
 }

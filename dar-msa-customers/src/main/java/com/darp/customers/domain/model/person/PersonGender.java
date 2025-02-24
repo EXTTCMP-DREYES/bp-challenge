@@ -1,6 +1,6 @@
 package com.darp.customers.domain.model.person;
 
-public enum Gender {
+public enum PersonGender {
   M,
   F
 }

@@ -1,6 +1,6 @@
 package com.darp.customers.domain.model.customer;
 
-public enum Status {
+public enum CustomerStatus {
   ACTIVE,
   INACTIVE,
   BLOCKED

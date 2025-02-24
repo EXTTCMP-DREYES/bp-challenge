@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: core
+  webflux:
+    base-path: /api
+  r2dbc:
+    url: r2dbc:h2:mem:///testdb
+    username: sa
+    password:
+
+api:
+  customers:
+    base-url: http://localhost:8081/api/customers

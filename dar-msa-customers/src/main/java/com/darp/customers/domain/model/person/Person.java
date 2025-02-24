@@ -20,7 +20,7 @@ public class Person {
   @Pattern(regexp = "^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' ]{1,100}$")
   private String fullName;
 
-  private Gender gender;
+  private PersonGender gender;
 
   @Min(1)
   @Max(120)
