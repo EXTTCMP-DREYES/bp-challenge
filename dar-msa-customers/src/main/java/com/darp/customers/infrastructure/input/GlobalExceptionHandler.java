@@ -3,10 +3,13 @@ package com.darp.customers.infrastructure.input;
 import com.darp.customers.domain.exception.NotFoundException;
 import com.darp.customers.infrastructure.input.dto.SimpleHttpErrorMessage;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import reactor.core.publisher.Mono;
 
 @RestControllerAdvice
@@ -18,6 +21,22 @@ public class GlobalExceptionHandler {
         SimpleHttpErrorMessage.builder()
             .message(e.getMessage())
             .status(HttpStatus.NOT_FOUND.value())
+            .timestamp(LocalDateTime.now())
+            .build());
+  }
+
+  @ExceptionHandler(WebExchangeBindException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Mono<SimpleHttpErrorMessage> handleWebExchangeBindException(WebExchangeBindException e) {
+    var errorMessage =
+        e.getAllErrors().stream()
+            .map(ObjectError::getDefaultMessage)
+            .collect(Collectors.joining(", "));
+
+    return Mono.just(
+        SimpleHttpErrorMessage.builder()
+            .message(errorMessage)
+            .status(HttpStatus.BAD_REQUEST.value())
             .timestamp(LocalDateTime.now())
             .build());
   }

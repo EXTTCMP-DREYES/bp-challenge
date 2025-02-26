@@ -43,14 +43,15 @@ public class AccountServiceImpl implements AccountService {
         .findById(account.getCustomerId())
         .flatMap(customer -> accountRepository.findByNumber(account.getNumber()))
         .flatMap(
-            storedAccount -> {
-              if (storedAccount != null) {
+            existingAccount -> {
+              if (existingAccount != null) {
                 return Mono.error(new DuplicateAccountException("Account already exists"));
               }
 
-              return accountRepository.save(newAccount);
+              return Mono.just(newAccount);
             })
-        .doOnSuccess(savedAccount -> log.info("|--> Account saved: {}", savedAccount.getNumber()))
+        .switchIfEmpty(accountRepository.save(newAccount))
+        .doOnSuccess(unused -> log.info("|--> Account saved: {}", newAccount.getNumber()))
         .doOnError(error -> log.error("|--> Error saving account: {}", error.getMessage()));
   }
 
@@ -75,7 +76,7 @@ public class AccountServiceImpl implements AccountService {
     log.info("|--> Delete account started: {}", id);
 
     return findById(id)
-        .flatMap(account -> accountRepository.delete(account))
+        .flatMap(accountRepository::delete)
         .doOnSuccess(nothing -> log.info("|--> Account deleted: {}", id))
         .doOnError(error -> log.error("|--> Error deleting account: {}", error.getMessage()));
   }

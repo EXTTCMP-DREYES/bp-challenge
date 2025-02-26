@@ -98,6 +98,54 @@ class AccountControllerTest {
         .isEqualTo(HttpStatus.BAD_REQUEST);
   }
 
+  @Test
+  void shouldUpdateAccountSuccessfully() {
+    var accountId = "b00ff9a0-8749-4004-bb6f-c074756a6691";
+    var updateAccountDto = MockData.UPDATE_ACCOUNT_DTO;
+
+    when(accountService.update(any(Account.class))).thenReturn(Mono.just(MockData.ACCOUNT));
+
+    testClient
+        .patch()
+        .uri("/accounts/{id}", accountId)
+        .bodyValue(updateAccountDto)
+        .exchange()
+        .expectStatus()
+        .isEqualTo(HttpStatus.OK)
+        .expectBody()
+        .json(
+            "{\"id\":\"b00ff9a0-8749-4004-bb6f-c074756a6691\",\"number\":\"123456\",\"type\":\"SAVINGS\",\"balance\":10,\"status\":\"ACTIVE\",\"customerId\":\"c3996159-662e-486d-b88f-a40ac3fddcc4\"}");
+  }
+
+  @Test
+  void shouldReturnBadRequestWhenUpdatingInvalidAccount() {
+    var accountId = "b00ff9a0-8749-4004-bb6f-c074756a6691";
+    var updateAccountDto = MockData.UPDATE_ACCOUNT_DTO.toBuilder().type("invalid").build();
+
+    testClient
+        .patch()
+        .uri("/accounts/{id}", accountId)
+        .bodyValue(updateAccountDto)
+        .exchange()
+        .expectStatus()
+        .isEqualTo(HttpStatus.BAD_REQUEST);
+  }
+
+  @Test
+  void shouldDeleteAccountSuccessfully() {
+    var accountId = "b00ff9a0-8749-4004-bb6f-c074756a6691";
+
+    when(accountService.delete(eq(accountId))) //
+        .thenReturn(Mono.empty());
+
+    testClient
+        .delete()
+        .uri("/accounts/{id}", accountId)
+        .exchange()
+        .expectStatus()
+        .isEqualTo(HttpStatus.OK);
+  }
+
   @TestConfiguration
   public static class TestConfig {
     @Bean

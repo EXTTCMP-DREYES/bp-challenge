@@ -77,4 +77,15 @@ public class GlobalExceptionHandler {
             .timestamp(LocalDateTime.now())
             .build());
   }
+
+  @ExceptionHandler(IllegalStateException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public Mono<SimpleHttpErrorMessage> handleIllegalStateException(IllegalStateException e) {
+    return Mono.just(
+        SimpleHttpErrorMessage.builder()
+            .message(e.getMessage())
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .timestamp(LocalDateTime.now())
+            .build());
+  }
 }

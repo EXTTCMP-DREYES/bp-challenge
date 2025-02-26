@@ -2,11 +2,13 @@ package com.darp.core.application.service.impl;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.darp.core.domain.exception.NotFoundException;
 import com.darp.core.domain.model.Account;
 import com.darp.core.domain.model.AccountStatus;
+import com.darp.core.domain.model.AccountType;
 import com.darp.core.domain.repository.AccountRepository;
 import com.darp.core.infrastructure.output.api.CustomersApi;
 import com.darp.core.shared.utils.MockData;
@@ -51,14 +53,14 @@ class AccountServiceImplTest {
 
   @Test
   void shouldSaveAccountWhenCustomerExists() {
-    var account = MockData.ACCOUNT.toBuilder().customerId("1").build();
+    var account = MockData.ACCOUNT;
     var expectedAccount = account.toBuilder().status(AccountStatus.ACTIVE).build();
 
     when(customersApi.findById(anyString())) //
         .thenReturn(Mono.just(MockData.CUSTOMER));
-    when(accountRepository.findByCustomerAndNumber(any(), any())) //
+    when(accountRepository.findByNumber(eq(MockData.ACCOUNT_NUMBER))) //
         .thenReturn(Mono.empty());
-    when(accountRepository.save(any(Account.class))) //
+    when(accountRepository.save(any())) //
         .thenReturn(Mono.just(expectedAccount));
 
     var result = accountService.save(account);
@@ -68,37 +70,45 @@ class AccountServiceImplTest {
             actualAccount ->
                 assertThat(actualAccount).usingRecursiveAssertion().isEqualTo(expectedAccount))
         .verifyComplete();
+
+    verify(accountRepository).save(any(Account.class));
   }
 
   @Test
-  void shouldThrowExceptionWhenCustomerNotFound() {
-    var account = MockData.ACCOUNT;
+  void shouldUpdateAccount() {
+    var account = MockData.ACCOUNT.toBuilder().build();
+    var updatedAccount = account.toBuilder().type(AccountType.CURRENT).build();
 
-    when(customersApi.findById(anyString())) //
-        .thenReturn(Mono.error(new NotFoundException("")));
+    when(accountRepository.findById(eq(account.getId()))) //
+        .thenReturn(Mono.just(account));
+    when(accountRepository.update(any())) //
+        .thenReturn(Mono.just(updatedAccount));
 
-    var result = accountService.save(account);
+    var result = accountService.update(account);
 
     StepVerifier.create(result) //
-        .expectError(NotFoundException.class)
-        .verify();
+        .assertNext(
+            actualAccount ->
+                assertThat(actualAccount).usingRecursiveComparison().isEqualTo(updatedAccount))
+        .verifyComplete();
+
+    verify(accountRepository).update(any(Account.class));
   }
 
   @Test
-  void shouldLogErrorWhenSaveFails() {
+  void shouldDeleteAccount() {
     var account = MockData.ACCOUNT;
-    var storedAccount = account.toBuilder().status(AccountStatus.ACTIVE).build();
-    var customer = MockData.CUSTOMER;
 
-    when(customersApi.findById(anyString())) //
-        .thenReturn(Mono.just(customer));
-    when(accountRepository.save(storedAccount))
-        .thenReturn(Mono.error(new RuntimeException("Save failed")));
+    when(accountRepository.findById(eq(account.getId()))) //
+        .thenReturn(Mono.just(account));
+    when(accountRepository.delete(eq(account))) //
+        .thenReturn(Mono.empty());
 
-    var result = accountService.save(account);
+    var result = accountService.delete(account.getId());
 
     StepVerifier.create(result) //
-        .expectError(RuntimeException.class)
-        .verify();
+        .verifyComplete();
+
+    verify(accountRepository).delete(eq(account));
   }
 }
