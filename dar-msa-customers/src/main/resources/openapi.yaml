@@ -1,0 +1,248 @@
+openapi: 3.0.0
+info:
+  title: Customers Microservice Documentation
+  description: API for managing customers.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081
+    description: Local server
+tags:
+  - name: Customers
+    description: Operations related to customers
+paths:
+  /customers/{id}:
+    get:
+      tags:
+        - Customers
+      summary: Find customer by id
+      description: Returns a customer by its id.
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier of the customer.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with customer details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Customer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - Customers
+      summary: Update customer by id
+      description: Fully updates a customer.
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier of the customer.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Customer information to update.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCustomer'
+      responses:
+        '200':
+          description: Customer updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Customer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - Customers
+      summary: Patch customer by id
+      description: Partially updates a customer.
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier of the customer.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Partial customer information to update.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartialUpdateCustomer'
+      responses:
+        '200':
+          description: Customer updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Customer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Customers
+      summary: Delete customer by id
+      description: Deletes a customer by its id.
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier of the customer.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Customer deleted successfully.
+        '404':
+          description: Customer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /customers:
+    post:
+      tags:
+        - Customers
+      summary: Save customer
+      description: Creates a new customer.
+      requestBody:
+        description: Customer information to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomer'
+      responses:
+        '200':
+          description: Customer created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+        fullName:
+          type: string
+        gender:
+          type: string
+        age:
+          type: integer
+        address:
+          type: string
+        phoneNumber:
+          type: string
+        status:
+          type: string
+      required:
+        - id
+        - fullName
+        - status
+    CreateCustomer:
+      type: object
+      properties:
+        fullName:
+          type: string
+        gender:
+          type: string
+        age:
+          type: integer
+        address:
+          type: string
+        phoneNumber:
+          type: string
+        password:
+          type: string
+      required:
+        - fullName
+        - password
+    UpdateCustomer:
+      type: object
+      properties:
+        fullName:
+          type: string
+        gender:
+          type: string
+        age:
+          type: integer
+        address:
+          type: string
+        phoneNumber:
+          type: string
+        password:
+          type: string
+      required:
+        - fullName
+    PartialUpdateCustomer:
+      type: object
+      properties:
+        fullName:
+          type: string
+        gender:
+          type: string
+        age:
+          type: integer
+        address:
+          type: string
+        phoneNumber:
+          type: string
+        password:
+          type: string
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        status:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - message
+        - status
+        - timestamp
