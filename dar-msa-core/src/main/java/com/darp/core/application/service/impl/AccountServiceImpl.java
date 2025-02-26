@@ -41,10 +41,7 @@ public class AccountServiceImpl implements AccountService {
 
     return customersApi
         .findById(account.getCustomerId())
-        .flatMap(
-            customer ->
-                accountRepository.findByCustomerAndNumber(
-                    account.getCustomerId(), account.getNumber()))
+        .flatMap(customer -> accountRepository.findByNumber(account.getNumber()))
         .flatMap(
             storedAccount -> {
               if (storedAccount != null) {
@@ -64,11 +61,7 @@ public class AccountServiceImpl implements AccountService {
     return findById(account.getId())
         .flatMap(
             storedAccount -> {
-              var updatedAccount =
-                  storedAccount.toBuilder()
-                      .type(account.getType())
-                      .status(account.getStatus())
-                      .build();
+              var updatedAccount = storedAccount.toBuilder().type(account.getType()).build();
 
               return accountRepository.update(updatedAccount);
             })
@@ -82,14 +75,7 @@ public class AccountServiceImpl implements AccountService {
     log.info("|--> Delete account started: {}", id);
 
     return findById(id)
-        .flatMap(
-            account -> {
-              if (account.getStatus().equals(AccountStatus.ACTIVE)) {
-                return Mono.error(new IllegalStateException("Account must be inactive"));
-              }
-
-              return accountRepository.delete(id);
-            })
+        .flatMap(account -> accountRepository.delete(account))
         .doOnSuccess(nothing -> log.info("|--> Account deleted: {}", id))
         .doOnError(error -> log.error("|--> Error deleting account: {}", error.getMessage()));
   }

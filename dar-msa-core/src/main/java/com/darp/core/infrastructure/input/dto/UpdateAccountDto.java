@@ -12,10 +12,4 @@ public record UpdateAccountDto(
             message = "Invalid type must be either SAVINGS or CURRENT")
         @NotNull
         @NotBlank
-        String type,
-    @Pattern(
-            regexp = "^(ACTIVE|INACTIVE)$",
-            message = "Invalid status must be either ACTIVE or INACTIVE")
-        @NotNull
-        @NotBlank
-        String status) {}
+        String type) {}

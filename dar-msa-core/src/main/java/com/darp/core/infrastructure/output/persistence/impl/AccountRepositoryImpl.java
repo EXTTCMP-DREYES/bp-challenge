@@ -1,6 +1,7 @@
 package com.darp.core.infrastructure.output.persistence.impl;
 
 import com.darp.core.domain.model.Account;
+import com.darp.core.domain.model.AccountStatus;
 import com.darp.core.domain.repository.AccountRepository;
 import com.darp.core.infrastructure.output.persistence.AccountReactiveRepository;
 import com.darp.core.infrastructure.output.persistence.mapper.AccountEntityMapper;
@@ -21,15 +22,14 @@ public class AccountRepositoryImpl implements AccountRepository {
 
   @Override
   public Mono<Account> findById(@NonNull @NotBlank String id) {
-    return accountReactiveRepository.findById(id).map(accountMapper::toDomain);
+    return accountReactiveRepository
+        .findByIdAndStatus(UUID.fromString(id), AccountStatus.ACTIVE)
+        .map(accountMapper::toDomain);
   }
 
   @Override
-  public Mono<Account> findByCustomerAndNumber(
-      @NonNull @NotBlank String customerId, @NonNull @NotBlank String number) {
-    return accountReactiveRepository
-        .findByCustomerIdAndNumber(UUID.fromString(customerId), number)
-        .map(accountMapper::toDomain);
+  public Mono<Account> findByNumber(@NonNull @NotBlank String number) {
+    return accountReactiveRepository.findByNumber(number).map(accountMapper::toDomain);
   }
 
   @Override
@@ -46,7 +46,11 @@ public class AccountRepositoryImpl implements AccountRepository {
   }
 
   @Override
-  public Mono<Void> delete(@NonNull String id) {
-    return accountReactiveRepository.deleteById(id);
+  public Mono<Void> delete(@NonNull Account account) {
+    account.setStatus(AccountStatus.INACTIVE);
+
+    var softDeletedAccount = accountMapper.toEntity(account);
+
+    return accountReactiveRepository.save(softDeletedAccount).then();
   }
 }

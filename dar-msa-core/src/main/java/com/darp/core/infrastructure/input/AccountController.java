@@ -42,7 +42,7 @@ public class AccountController {
             error -> log.error("|--> POST /accounts failed. Reason: {}", error.getMessage()));
   }
 
-  @PutMapping("/{id}")
+  @PatchMapping("/{id}")
   Mono<AccountDto> update(
       @PathVariable String id, @RequestBody @Validated UpdateAccountDto accountDto) {
     log.info("|--> PUT /accounts/{} started", id);

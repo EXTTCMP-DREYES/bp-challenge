@@ -23,7 +23,7 @@ public interface AccountDtoMapper {
   @Mapping(target = "id", source = "id")
   @Mapping(target = "balance", ignore = true)
   @Mapping(target = "number", ignore = true)
-  @Mapping(target = "status", source = "dto.status")
+  @Mapping(target = "status", ignore = true)
   @Mapping(target = "type", source = "dto.type")
   @Mapping(target = "customerId", ignore = true)
   Account toDomain(String id, UpdateAccountDto dto);
