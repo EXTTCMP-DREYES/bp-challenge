@@ -14,4 +14,6 @@ public interface CustomerService {
   Mono<Customer> update(@NotNull @NotEmpty String id, @Validated @NotNull Customer customer);
 
   Mono<Void> deleteById(@NotNull @NotEmpty String id);
+
+  Mono<String> authenticateCustomer(@NotNull Customer customer);
 }

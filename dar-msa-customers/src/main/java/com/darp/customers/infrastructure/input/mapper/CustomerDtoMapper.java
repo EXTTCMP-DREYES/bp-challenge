@@ -1,10 +1,7 @@
 package com.darp.customers.infrastructure.input.mapper;
 
 import com.darp.customers.domain.model.customer.Customer;
-import com.darp.customers.infrastructure.input.dto.CreateCustomerDto;
-import com.darp.customers.infrastructure.input.dto.CustomerDto;
-import com.darp.customers.infrastructure.input.dto.PartialUpdateCustomerDto;
-import com.darp.customers.infrastructure.input.dto.UpdateCustomerDto;
+import com.darp.customers.infrastructure.input.dto.*;
 import org.mapstruct.*;
 
 @Mapper(
@@ -13,6 +10,15 @@ import org.mapstruct.*;
     builder = @Builder(disableBuilder = true))
 public interface CustomerDtoMapper {
   CustomerDto toDto(Customer customer);
+
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "status", ignore = true)
+  @Mapping(target = "address", ignore = true)
+  @Mapping(target = "age", ignore = true)
+  @Mapping(target = "fullName", ignore = true)
+  @Mapping(target = "gender", ignore = true)
+  @Mapping(target = "phoneNumber", ignore = true)
+  Customer toDomain(CustomerCredentialsDto credentialsDto);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "status", ignore = true)

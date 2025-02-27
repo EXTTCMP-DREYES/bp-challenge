@@ -8,6 +8,8 @@ spring:
   output:
     ansi:
       enabled: always
+  main:
+    allow-bean-definition-overriding: true
   r2dbc:
     url: r2dbc:postgresql://localhost:5432/postgres
     username: postgres
@@ -16,3 +18,6 @@ spring:
     redis:
       host: localhost
       port: 6379
+
+jwt:
+  expiration: 86400000 # 1 day

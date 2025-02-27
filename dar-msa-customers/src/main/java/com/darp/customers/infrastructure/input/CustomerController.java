@@ -1,10 +1,7 @@
 package com.darp.customers.infrastructure.input;
 
 import com.darp.customers.application.input.port.CustomerService;
-import com.darp.customers.infrastructure.input.dto.CreateCustomerDto;
-import com.darp.customers.infrastructure.input.dto.CustomerDto;
-import com.darp.customers.infrastructure.input.dto.PartialUpdateCustomerDto;
-import com.darp.customers.infrastructure.input.dto.UpdateCustomerDto;
+import com.darp.customers.infrastructure.input.dto.*;
 import com.darp.customers.infrastructure.input.mapper.CustomerDtoMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +16,15 @@ import reactor.core.publisher.Mono;
 public class CustomerController {
   private final CustomerService customerService;
   private final CustomerDtoMapper customerMapper;
+
+  @PostMapping("/login")
+  public Mono<TokenResponseDto> authenticate(
+      @Validated @RequestBody CustomerCredentialsDto credentialsDto) {
+    log.info("|--> Authenticate customer started: {}", credentialsDto.identityNumber());
+    return customerService
+        .authenticateCustomer(customerMapper.toDomain(credentialsDto))
+        .map(TokenResponseDto::new);
+  }
 
   @GetMapping("/{id}")
   public Mono<CustomerDto> findById(@PathVariable String id) {

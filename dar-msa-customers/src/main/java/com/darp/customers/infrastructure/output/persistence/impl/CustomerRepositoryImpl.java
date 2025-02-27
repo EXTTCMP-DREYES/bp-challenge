@@ -60,6 +60,19 @@ public class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @Override
+  public Mono<Customer> findByIdentityNumber(String identityNumber) {
+    var sql =
+        "select * from customers c inner join persons p using(id) where c.identity_number = :identity_number";
+
+    return template
+        .getDatabaseClient()
+        .sql(sql)
+        .bind("identity_number", identityNumber)
+        .map((row, rowMetadata) -> customerEntityMapper.toDomain(row))
+        .one();
+  }
+
+  @Override
   public Mono<Customer> save(Customer customer) {
     var personEntity = customerEntityMapper.toPersonEntity(customer);
     var customerArgs = customerEntityMapper.toMap(customer);

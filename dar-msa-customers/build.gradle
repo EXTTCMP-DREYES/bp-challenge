@@ -29,6 +29,7 @@ repositories {
 
 ext {
     set('mapStructVersion', "1.6.3")
+    set('jwtVersion', '0.12.5')
 }
 
 dependencies {
@@ -39,11 +40,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
     implementation "org.mapstruct:mapstruct:${mapStructVersion}"
     implementation 'io.lettuce:lettuce-core:6.5.3.RELEASE'
+    implementation "io.jsonwebtoken:jjwt:${jwtVersion}"
+    implementation "io.jsonwebtoken:jjwt-api:${jwtVersion}"
+    implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'org.postgresql:r2dbc-postgresql'
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jwtVersion}"
 
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapStructVersion}"

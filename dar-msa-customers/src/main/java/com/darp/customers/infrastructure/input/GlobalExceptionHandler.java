@@ -1,6 +1,8 @@
 package com.darp.customers.infrastructure.input;
 
+import com.darp.customers.domain.exception.JwtVerificationException;
 import com.darp.customers.domain.exception.DuplicatedCustomerException;
+import com.darp.customers.domain.exception.InvalidCredentialsException;
 import com.darp.customers.domain.exception.NotFoundException;
 import com.darp.customers.infrastructure.input.dto.SimpleHttpErrorMessage;
 import java.time.LocalDateTime;
@@ -50,6 +52,17 @@ public class GlobalExceptionHandler {
         SimpleHttpErrorMessage.builder()
             .message(errorMessage)
             .status(HttpStatus.BAD_REQUEST.value())
+            .timestamp(LocalDateTime.now())
+            .build());
+  }
+
+  @ExceptionHandler({InvalidCredentialsException.class, JwtVerificationException.class})
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public Mono<SimpleHttpErrorMessage> handleInvalidCredentialsException(RuntimeException e) {
+    return Mono.just(
+        SimpleHttpErrorMessage.builder()
+            .message(e.getMessage())
+            .status(HttpStatus.UNAUTHORIZED.value())
             .timestamp(LocalDateTime.now())
             .build());
   }

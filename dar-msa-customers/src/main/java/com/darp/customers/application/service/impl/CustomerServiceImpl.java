@@ -2,11 +2,13 @@ package com.darp.customers.application.service.impl;
 
 import com.darp.customers.application.input.port.CustomerService;
 import com.darp.customers.domain.exception.DuplicatedCustomerException;
+import com.darp.customers.domain.exception.InvalidCredentialsException;
 import com.darp.customers.domain.exception.NotFoundException;
 import com.darp.customers.domain.model.customer.Customer;
 import com.darp.customers.domain.model.customer.CustomerStatus;
 import com.darp.customers.domain.repository.CustomerRepository;
 import com.darp.customers.infrastructure.config.IdGenerator;
+import com.darp.customers.infrastructure.config.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +22,7 @@ public class CustomerServiceImpl implements CustomerService {
   private final PasswordEncoder passwordEncoder;
   private final IdGenerator idGenerator;
   private final CustomerRepository customerRepository;
+  private final JwtTokenProvider tokenProvider;
 
   @Override
   public Mono<Customer> findById(String id) {
@@ -89,5 +92,22 @@ public class CustomerServiceImpl implements CustomerService {
             })
         .doOnSuccess(unused -> log.info("|--> Customer deleted."))
         .doOnError(error -> log.error("|--> Error deleting customer: {}.", error.getMessage()));
+  }
+
+  @Override
+  public Mono<String> authenticateCustomer(Customer customer) {
+    return customerRepository
+        .findByIdentityNumber(customer.getIdentityNumber())
+        .switchIfEmpty(Mono.error(new InvalidCredentialsException("Id number or password invalid")))
+        .flatMap(
+            storedCustomer -> {
+              var passwordsMatch =
+                  passwordEncoder.matches(customer.getPassword(), storedCustomer.getPassword());
+              if (!passwordsMatch) {
+                return Mono.error(new InvalidCredentialsException("Id number or password invalid"));
+              }
+
+              return Mono.fromCallable(() -> tokenProvider.generateToken(storedCustomer.getId()));
+            });
   }
 }
