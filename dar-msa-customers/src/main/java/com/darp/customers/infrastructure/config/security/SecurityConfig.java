@@ -38,7 +38,7 @@ public class SecurityConfig {
         .authorizeExchange(
             exchanges ->
                 exchanges
-                    .pathMatchers(HttpMethod.POST, "/customers").authenticated()
+                    .pathMatchers(HttpMethod.DELETE, "/customers/**").authenticated()
                     .anyExchange().permitAll())
         .addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
         .build();

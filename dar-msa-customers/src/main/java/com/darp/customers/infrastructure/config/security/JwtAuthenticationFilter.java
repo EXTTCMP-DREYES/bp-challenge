@@ -71,7 +71,7 @@ public class JwtAuthenticationFilter implements WebFilter {
     var method = exchange.getRequest().getMethod();
     var path = exchange.getRequest().getPath().value();
 
-    return method == HttpMethod.POST && path.equals("/api/customers");
+    return method == HttpMethod.DELETE && path.startsWith("/api/customers");
   }
 
   @NonNull
