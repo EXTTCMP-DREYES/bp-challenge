@@ -1,6 +1,7 @@
 package com.darp.customers.application.service.impl;
 
 import com.darp.customers.application.input.port.CustomerService;
+import com.darp.customers.domain.exception.DuplicatedCustomerException;
 import com.darp.customers.domain.exception.NotFoundException;
 import com.darp.customers.domain.model.customer.Customer;
 import com.darp.customers.domain.model.customer.CustomerStatus;
@@ -32,7 +33,7 @@ public class CustomerServiceImpl implements CustomerService {
     var id = idGenerator.generateId();
     var encryptedPassword = passwordEncoder.encode(customer.getPassword());
 
-    var storedCustomer =
+    var newCustomer =
         customer.toBuilder() //
             .id(id)
             .password(encryptedPassword)
@@ -40,7 +41,15 @@ public class CustomerServiceImpl implements CustomerService {
             .build();
 
     return customerRepository
-        .save(storedCustomer)
+        .existsByIdentityNumber(customer.getIdentityNumber())
+        .flatMap(
+            isIdentityNumberTaken -> {
+              if (isIdentityNumberTaken) {
+                return Mono.error(new DuplicatedCustomerException("Customer already exists"));
+              }
+
+              return customerRepository.save(newCustomer);
+            })
         .doOnSuccess(savedCustomer -> log.info("|--> Customer saved: [{}].", savedCustomer.getId()))
         .doOnError(error -> log.error("|--> Error saving customer: {}.", error.getMessage()));
   }

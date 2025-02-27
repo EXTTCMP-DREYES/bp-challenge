@@ -31,11 +31,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         .getDatabaseClient()
         .sql(sql)
         .bind("id", id)
-        .map(
-            (row, metadata) -> {
-              var count = row.get(0, Long.class);
-              return count != null && count > 0;
-            })
+        .map((row, rowMetadata) -> customerEntityMapper.existsFromCount(row))
         .one();
   }
 
@@ -52,6 +48,18 @@ public class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @Override
+  public Mono<Boolean> existsByIdentityNumber(String identityNumber) {
+    var sql = "select count(*) from customers c where c.identity_number = :identity_number";
+
+    return template
+        .getDatabaseClient()
+        .sql(sql)
+        .bind("identity_number", identityNumber)
+        .map((row, rowMetadata) -> customerEntityMapper.existsFromCount(row))
+        .one();
+  }
+
+  @Override
   public Mono<Customer> save(Customer customer) {
     var personEntity = customerEntityMapper.toPersonEntity(customer);
     var customerArgs = customerEntityMapper.toMap(customer);
@@ -63,7 +71,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         .flatMap(
             person -> {
               var sql =
-                  "INSERT INTO public.customers (id, password, status) VALUES(:id, :password, :status)";
+                  "INSERT INTO public.customers (id, identity_number, password, status) VALUES(:id, :identity_number, :password, :status)";
 
               return template
                   .getDatabaseClient()

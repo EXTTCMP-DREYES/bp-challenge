@@ -10,6 +10,8 @@ public interface CustomerRepository {
 
   Mono<Customer> findById(@NotNull @NotEmpty String id);
 
+  Mono<Boolean> existsByIdentityNumber(@NotNull @NotEmpty String identityNumber);
+
   Mono<Customer> save(@NotNull Customer customer);
 
   Mono<Customer> update(@NotNull Customer customer);

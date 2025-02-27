@@ -15,6 +15,7 @@ public record CreateCustomerDto(
     @NotNull @Pattern(regexp = "^[\\p{L}0-9\\s.,#\\-]{1,200}$") String address,
     @NotNull @Pattern(regexp = "^\\+?\\d{1,3}?[-.\\s]?\\d{1,4}([-.\\s]?\\d{2,4}){1,4}$")
         String phoneNumber,
+    @NotNull @Pattern(regexp = "^\\d{10,13}$") String identityNumber,
     @NotNull
         @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{12,}$")
         @ToString.Exclude

@@ -18,6 +18,7 @@ public interface CustomerEntityMapper {
     return Customer.builder()
         .id(row.get("id", String.class))
         .fullName(row.get("full_name", String.class))
+        .identityNumber(row.get("identity_number", String.class))
         .gender(PersonGender.valueOf(row.get("gender", String.class)))
         .age(row.get("age", Integer.class))
         .address(row.get("address", String.class))
@@ -35,9 +36,15 @@ public interface CustomerEntityMapper {
   default Map<String, String> toMap(Customer domain) {
     return Map.ofEntries(
         Map.entry("id", domain.getId()),
+        Map.entry("identity_number", domain.getIdentityNumber()),
         Map.entry("password", domain.getPassword()),
         Map.entry("status", domain.getStatus().name()));
   }
 
   PersonEntity toPersonEntity(Customer domain);
+
+  default boolean existsFromCount(Row row) {
+    var count = row.get(0, Long.class);
+    return count != null && count > 0;
+  }
 }

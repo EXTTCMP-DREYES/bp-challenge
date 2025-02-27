@@ -15,5 +15,8 @@ public class Customer extends Person {
   @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{12,}$")
   private String password;
 
+  @Pattern(regexp = "^\\d{10,13}$")
+  private String identityNumber;
+
   private CustomerStatus status;
 }

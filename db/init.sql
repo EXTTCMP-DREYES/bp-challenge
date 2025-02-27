@@ -10,6 +10,7 @@ CREATE TABLE public.persons (
 CREATE TABLE public.customers (
     id VARCHAR(255) PRIMARY KEY,
     password VARCHAR(255) NOT NULL,
+    identity_number VARCHAR(13) UNIQUE NOT NULL,
     status VARCHAR(50),
     FOREIGN KEY (id) REFERENCES persons(id) ON DELETE CASCADE
 );

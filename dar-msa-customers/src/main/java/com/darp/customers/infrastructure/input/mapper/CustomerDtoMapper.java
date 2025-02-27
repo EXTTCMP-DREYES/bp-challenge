@@ -19,10 +19,12 @@ public interface CustomerDtoMapper {
   Customer toDomain(CreateCustomerDto dto);
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "identityNumber", ignore = true)
   @Mapping(target = "status", constant = "ACTIVE")
   Customer toDomain(UpdateCustomerDto dto);
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "identityNumber", ignore = true)
   @Mapping(target = "status", constant = "ACTIVE")
   Customer toDomain(PartialUpdateCustomerDto dto);
 
