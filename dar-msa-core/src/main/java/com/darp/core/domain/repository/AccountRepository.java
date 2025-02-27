@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 public interface AccountRepository {
   Mono<Account> findById(@NonNull @NotBlank String id);
 
-  Mono<Account> findByNumber(@NonNull @NotBlank String number);
+  Mono<Boolean> existsByNumber(@NonNull @NotBlank String number);
 
   Mono<Account> save(@NonNull Account account);
 

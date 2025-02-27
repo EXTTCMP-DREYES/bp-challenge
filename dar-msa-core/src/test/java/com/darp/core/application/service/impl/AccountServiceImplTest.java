@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.darp.core.domain.exception.DuplicateAccountException;
 import com.darp.core.domain.exception.NotFoundException;
 import com.darp.core.domain.model.Account;
 import com.darp.core.domain.model.AccountStatus;
@@ -52,14 +53,48 @@ class AccountServiceImplTest {
   }
 
   @Test
+  void shouldThrowNotFoundWhenCustomerDoesNotExistOnSave() {
+    var account = MockData.ACCOUNT;
+
+    when(customersApi.findById(anyString())) //
+        .thenReturn(Mono.error(new NotFoundException("")));
+
+    var result = accountService.save(account);
+
+    StepVerifier.create(result) //
+        .expectError(NotFoundException.class)
+        .verify();
+
+    verify(customersApi).findById(eq(account.getCustomerId()));
+  }
+
+  @Test
+  void shouldThrowDuplicateAccountNumberOnSave() {
+    var account = MockData.ACCOUNT;
+
+    when(customersApi.findById(anyString())) //
+        .thenReturn(Mono.just(MockData.CUSTOMER));
+    when(accountRepository.existsByNumber(eq(MockData.ACCOUNT_NUMBER))) //
+        .thenReturn(Mono.just(Boolean.TRUE));
+
+    var result = accountService.save(account);
+
+    StepVerifier.create(result) //
+        .expectError(DuplicateAccountException.class)
+        .verify();
+
+    verify(accountRepository).existsByNumber(eq(MockData.ACCOUNT_NUMBER));
+  }
+
+  @Test
   void shouldSaveAccountWhenCustomerExists() {
     var account = MockData.ACCOUNT;
     var expectedAccount = account.toBuilder().status(AccountStatus.ACTIVE).build();
 
     when(customersApi.findById(anyString())) //
         .thenReturn(Mono.just(MockData.CUSTOMER));
-    when(accountRepository.findByNumber(eq(MockData.ACCOUNT_NUMBER))) //
-        .thenReturn(Mono.empty());
+    when(accountRepository.existsByNumber(eq(MockData.ACCOUNT_NUMBER))) //
+        .thenReturn(Mono.just(Boolean.FALSE));
     when(accountRepository.save(any())) //
         .thenReturn(Mono.just(expectedAccount));
 

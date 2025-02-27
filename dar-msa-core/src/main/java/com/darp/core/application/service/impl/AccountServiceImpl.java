@@ -41,16 +41,15 @@ public class AccountServiceImpl implements AccountService {
 
     return customersApi
         .findById(account.getCustomerId())
-        .flatMap(customer -> accountRepository.findByNumber(account.getNumber()))
+        .flatMap(customer -> accountRepository.existsByNumber(account.getNumber()))
         .flatMap(
-            existingAccount -> {
-              if (existingAccount != null) {
+            isAccountNumberTaken -> {
+              if (isAccountNumberTaken) {
                 return Mono.error(new DuplicateAccountException("Account already exists"));
               }
 
-              return Mono.just(newAccount);
+              return accountRepository.save(newAccount);
             })
-        .switchIfEmpty(accountRepository.save(newAccount))
         .doOnSuccess(unused -> log.info("|--> Account saved: {}", newAccount.getNumber()))
         .doOnError(error -> log.error("|--> Error saving account: {}", error.getMessage()));
   }

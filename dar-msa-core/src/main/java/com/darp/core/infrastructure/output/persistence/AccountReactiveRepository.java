@@ -9,5 +9,5 @@ import reactor.core.publisher.Mono;
 public interface AccountReactiveRepository extends ReactiveCrudRepository<AccountEntity, UUID> {
   Mono<AccountEntity> findByIdAndStatus(UUID id, AccountStatus status);
 
-  Mono<AccountEntity> findByNumber(String number);
+  Mono<Boolean> existsByNumber(String number);
 }

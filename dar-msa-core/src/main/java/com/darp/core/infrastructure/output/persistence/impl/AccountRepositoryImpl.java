@@ -28,8 +28,8 @@ public class AccountRepositoryImpl implements AccountRepository {
   }
 
   @Override
-  public Mono<Account> findByNumber(@NonNull @NotBlank String number) {
-    return accountReactiveRepository.findByNumber(number).map(accountMapper::toDomain);
+  public Mono<Boolean> existsByNumber(@NonNull @NotBlank String number) {
+    return accountReactiveRepository.existsByNumber(number);
   }
 
   @Override
